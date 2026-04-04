@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Casa Reflexión – Decoración para el Hogar</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+ <!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-logo">Casa <em>Reflexión</em></div>
+  <ul class="nav-links">
+    <li><a href="#inicio" onclick="mostrarPaginaCompleta()">Inicio</a></li>
+   <li class="nav-dropdown">
+  <a href="javascript:void(0)" onclick="mostrarPaginaCompleta()">Productos ▾</a>
+  <ul class="dropdown-menu">
+    <li><a href="#productos" onclick="filtrarCategoria('espejos')">🪞 Espejos</a></li>
+    <li><a href="#productos" onclick="filtrarCategoria('cuadros')">🖼️ Cuadros</a></li>
+    <li><a href="#productos" onclick="filtrarCategoria('lamparas')">🏮 Lámparas</a></li>
+    <li><a href="#productos" onclick="filtrarCategoria('bano')">🚿 Baño</a></li>
+    <li><a href="#productos" onclick="filtrarCategoria('maseteros')">🪴 Maseteros</a></li>
+    <li><a href="#productos" onclick="filtrarCategoria('velas')">🕯️ Velas</a></li>
+    <li><a href="#productos" onclick="filtrarCategoria('ropa-de-cama')">🛏️ Ropa de cama</a></li>
+  </ul>
+</li>
+    <li><a href="#nosotros">Nosotros</a></li>
+    <li><a href="#contacto">Contacto</a></li>
+  </ul>
+  <div class="nav-buscador">
+    <input type="text" id="buscador" placeholder="🔍 Buscar..." oninput="buscarProductos()" />
+  </div>
+
+  <a href="Pages/login.html" class="btn-login">Iniciar sesión</a>
+<div class="nav-cart" onclick="window.location.href='Pages/carrito.html'" style="cursor:pointer;">
+  <span class="cart-icon">🛒</span>
+  <span class="cart-count">0</span>
+</div>
+</nav>
+
+  <!-- HERO -->
+  <section class="hero" id="inicio">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">Artículos decorativos para tu hogar</p>
+      <h1 class="hero-title">Que tu hogar se vea como<br/><em>siempre soñaste</em></h1>
+      <p class="hero-sub">Piezas únicas que transforman cada rincón en un refugio lleno de calma y carácter.</p>
+      <a href="#productos" class="btn-primary">Ver colección</a>
+    </div>
+    <div class="hero-image-wrap">
+      <div class="hero-shape">
+  <img src="img/living.jpg" alt="Espejo decorativo" />
+</div>
+    </div>
+  </section>
+
+  <!-- CATEGORÍAS -->
+  <section class="categorias">
+    <div class="cat-item">
+      <span class="cat-icon">🕯️</span>
+      <p>Velas & Aromas</p>
+    </div>
+    <div class="cat-item">
+      <span class="cat-icon">🪴</span>
+      <p>Plantas & Macetas</p>
+    </div>
+    <div class="cat-item">
+      <span class="cat-icon">🖼️</span>
+      <p>Cuadros & Arte</p>
+    </div>
+    <div class="cat-item">
+      <span class="cat-icon">🪞</span>
+      <p>Espejos & Luz</p>
+    </div>
+    <div class="cat-item">
+      <span class="cat-icon">🏺</span>
+      <p>Jarrones & Cerámicas</p>
+    </div>
+  </section>
+
+ 
+
+  <!-- PRODUCTOS -->
+  <section class="productos" id="productos">
+    <div class="section-header">
+      <p class="section-tag">Colección</p>
+      <h2>Nuestros <em>favoritos</em></h2>
+    </div>
+    <div class="productos-grid">
+
+      <div class="producto-card">
+        <div class="producto-img" style="background:#e8ddd4;">
+          <span class="producto-emoji">🏺</span>
+        </div>
+        <div class="producto-info">
+          <p class="producto-categoria">Cerámica</p>
+          <h3>Jarrón Siena</h3>
+          <p class="producto-desc">Cerámica artesanal en tono terracota con acabado mate.</p>
+          <div class="producto-footer">
+            <span class="producto-precio">$24.990</span>
+            <button class="btn-agregar" onclick="agregarCarrito(this)">+ Agregar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="producto-card">
+        <div class="producto-img" style="background:#dce5dc;">
+          <span class="producto-emoji">🪴</span>
+        </div>
+        <div class="producto-info">
+          <p class="producto-categoria">Plantas</p>
+          <h3>Maceta Nórdica</h3>
+          <p class="producto-desc">Maceta de concreto con diseño minimalista escandinavo.</p>
+          <div class="producto-footer">
+            <span class="producto-precio">$18.500</span>
+            <button class="btn-agregar" onclick="agregarCarrito(this)">+ Agregar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="producto-card destacado">
+        <div class="badge">Popular</div>
+        <div class="producto-img" style="background:#f0e8d8;">
+          <span class="producto-emoji">🕯️</span>
+        </div>
+        <div class="producto-info">
+          <p class="producto-categoria">Aromas</p>
+          <h3>Vela Sándalo & Cedro</h3>
+          <p class="producto-desc">80 horas de aroma envolvente con cera de soya natural.</p>
+          <div class="producto-footer">
+            <span class="producto-precio">$12.990</span>
+            <button class="btn-agregar" onclick="agregarCarrito(this)">+ Agregar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="producto-card">
+        <div class="producto-img" style="background:#e5e0ec;">
+          <span class="producto-emoji">🪞</span>
+        </div>
+        <div class="producto-info">
+          <p class="producto-categoria">Espejos</p>
+          <h3>Espejo Luna Dorado</h3>
+          <p class="producto-desc">Marco de metal dorado satinado, Ø 50 cm, ideal para sala.</p>
+          <div class="producto-footer">
+            <span class="producto-precio">$39.900</span>
+            <button class="btn-agregar" onclick="agregarCarrito(this)">+ Agregar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="producto-card">
+        <div class="producto-img" style="background:#dde5e8;">
+          <span class="producto-emoji">🖼️</span>
+        </div>
+        <div class="producto-info">
+          <p class="producto-categoria">Arte</p>
+          <h3>Lámina Botánica</h3>
+          <p class="producto-desc">Impresión de alta calidad en papel texturizado 30×40 cm.</p>
+          <div class="producto-footer">
+            <span class="producto-precio">$9.900</span>
+            <button class="btn-agregar" onclick="agregarCarrito(this)">+ Agregar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="producto-card">
+        <div class="producto-img" style="background:#ede4d4;">
+          <span class="producto-emoji">🏮</span>
+        </div>
+        <div class="producto-info">
+          <p class="producto-categoria">Iluminación</p>
+          <h3>Lámpara Tejida</h3>
+          <p class="producto-desc">Pantalla de fibra natural con luz cálida 2700K.</p>
+          <div class="producto-footer">
+            <span class="producto-precio">$34.500</span>
+            <button class="btn-agregar" onclick="agregarCarrito(this)">+ Agregar</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- BANNER INTERMEDIO -->
+  <section class="banner-medio">
+    <div class="banner-texto">
+      <p class="section-tag" style="color:#c9b89a;">Nuestra filosofía</p>
+      <h2>"Cada objeto es importante<br/><em>tiene su historia y su lugar."</em></h2>
+      <p>Seleccionamos piezas que traen calma, presencia y belleza a tu vida cotidiana.</p>
+    </div>
+  </section>
+
+  <!-- NOSOTROS -->
+  <section class="nosotros" id="nosotros">
+    <div class="nosotros-texto">
+      <p class="section-tag">Sobre nosotros</p>
+      <h2>¿Quiénes somos?</h2>
+      <p>Casa Reflexión nació del deseo de transformar los hogares en espacios que inviten a la pausa y al disfrute. Cada artículo es cuidadosamente elegido por su calidad, diseño y la historia que cuenta.</p>
+      <p>Trabajamos con artesanos locales y marcas conscientes que comparten nuestros valores: simplicidad, durabilidad y belleza auténtica.</p>
+      <div class="nosotros-stats">
+        <div><strong>+200</strong><span>productos</span></div>
+        <div><strong>+1.500</strong><span>clientes felices</span></div>
+        <div><strong>3</strong><span>años de experiencia</span></div>
+      </div>
+    </div>
+    <div class="nosotros-deco">
+      <div class="deco-circulo">
+        <span>🏡</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACTO -->
+  <section class="contacto" id="contacto">
+    <div class="section-header">
+      <p class="section-tag">Escríbenos</p>
+      <h2>¿Tienes alguna <em>pregunta</em>?</h2>
+    </div>
+    <form class="contacto-form" onsubmit="enviarFormulario(event)">
+      <div class="form-row">
+        <input type="text" placeholder="Tu nombre" required />
+        <input type="email" placeholder="Tu correo" required />
+      </div>
+      <input type="text" placeholder="Asunto" />
+      <textarea placeholder="Tu mensaje..." rows="5" required></textarea>
+      <button type="submit" class="btn-primary">Enviar mensaje</button>
+    </form>
+    <p id="form-exito" class="form-exito" style="display:none;">✅ ¡Mensaje enviado! Te responderemos pronto.</p>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-logo">Casa <em>Reflexión</em></div>
+    <p class="footer-slogan">Decora con intención. Vive con calma.</p>
+    <div class="footer-links">
+      <a href="#inicio">Inicio</a>
+      <a href="#productos">Productos</a>
+      <a href="#nosotros">Nosotros</a>
+      <a href="#contacto">Contacto</a>
+    </div>
+    <p class="footer-copy">© 2026 Casa Reflexión. Todos los derechos reservados.</p>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

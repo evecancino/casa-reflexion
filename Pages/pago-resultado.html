@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Resultado Pago – Casa Reflexión</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    .resultado-section {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6rem 2rem;
+      background: var(--crema);
+    }
+
+    .resultado-card {
+      background: var(--blanco);
+      border-radius: var(--radius);
+      box-shadow: 0 8px 40px rgba(42,37,32,0.12);
+      padding: 3rem;
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+    }
+
+    .resultado-icono {
+      font-size: 4rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .resultado-card h1 {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 300;
+      margin-bottom: 1rem;
+    }
+
+    .resultado-card p {
+      color: var(--gris);
+      margin-bottom: 0.5rem;
+    }
+
+    .resultado-detalle {
+      background: var(--crema);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+      margin: 1.5rem 0;
+      text-align: left;
+    }
+
+    .resultado-detalle p {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .resultado-detalle strong {
+      color: var(--carbon);
+    }
+
+    .resultado-card .btn-primary {
+      margin-top: 1rem;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-logo"><a href="../index.html" style="text-decoration:none;color:inherit;">Casa <em>Reflexión</em></a></div>
+    <ul class="nav-links">
+      <li><a href="../index.html">Inicio</a></li>
+    </ul>
+    <div class="nav-cart">
+      <span class="cart-icon">🛒</span>
+      <span class="cart-count">0</span>
+    </div>
+  </nav>
+
+  <section class="resultado-section">
+    <div class="resultado-card" id="resultado-card">
+      <div class="resultado-icono">⏳</div>
+      <h1>Procesando pago...</h1>
+      <p>Por favor espera un momento.</p>
+    </div>
+  </section>
+
+  <script>
+    const API = 'http://localhost:3000/api';
+    const token = localStorage.getItem('token');
+
+    async function confirmarPago() {
+      const params = new URLSearchParams(window.location.search);
+      const token_ws = params.get('token_ws');
+
+      const card = document.getElementById('resultado-card');
+
+      if (!token_ws) {
+        card.innerHTML = `
+          <div class="resultado-icono">❌</div>
+          <h1>Pago <em>cancelado</em></h1>
+          <p>No se realizó ningún cobro.</p>
+          <a href="carrito.html" class="btn-primary">Volver al carrito</a>
+        `;
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API}/pagos/confirmar`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ token_ws })
+        });
+
+        const data = await res.json();
+
+        if (data.exito) {
+          card.innerHTML = `
+            <div class="resultado-icono">✅</div>
+            <h1>¡Pago <em>exitoso</em>!</h1>
+            <p>Gracias por tu compra en Casa Reflexión.</p>
+            <div class="resultado-detalle">
+              <p><span>Orden</span><strong>${data.orden}</strong></p>
+              <p><span>Monto</span><strong>$${data.monto.toLocaleString('es-CL')}</strong></p>
+              <p><span>Fecha</span><strong>${new Date(data.fecha).toLocaleDateString('es-CL')}</strong></p>
+            </div>
+            <a href="../index.html" class="btn-primary">Seguir comprando</a>
+          `;
+        } else {
+          card.innerHTML = `
+            <div class="resultado-icono">❌</div>
+            <h1>Pago <em>rechazado</em></h1>
+            <p>${data.mensaje}</p>
+            <a href="carrito.html" class="btn-primary">Intentar nuevamente</a>
+          `;
+        }
+      } catch (err) {
+        card.innerHTML = `
+          <div class="resultado-icono">⚠️</div>
+          <h1>Error al confirmar</h1>
+          <p>Hubo un problema al procesar tu pago.</p>
+          <a href="carrito.html" class="btn-primary">Volver al carrito</a>
+        `;
+      }
+    }
+
+    confirmarPago();
+  </script>
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login – Casa Reflexión</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    .auth-section {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6rem 2rem 2rem;
+      background: linear-gradient(135deg, var(--crema) 0%, var(--arena) 100%);
+    }
+
+    .auth-card {
+      background: var(--blanco);
+      border-radius: var(--radius);
+      box-shadow: 0 8px 40px rgba(42,37,32,0.12);
+      padding: 3rem;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .auth-logo {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      text-align: center;
+      margin-bottom: 0.3rem;
+    }
+
+    .auth-tabs {
+      display: flex;
+      border-bottom: 2px solid var(--arena);
+      margin: 1.8rem 0 2rem;
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 0.8rem;
+      text-align: center;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gris);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.2s;
+    }
+
+    .auth-tab.activo {
+      color: var(--terracota);
+      border-bottom-color: var(--terracota);
+    }
+
+    .auth-form {
+      display: none;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .auth-form.activo {
+      display: flex;
+    }
+
+    .auth-form input {
+      padding: 0.9rem 1.2rem;
+      border: 1.5px solid var(--arena);
+      border-radius: var(--radius);
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      color: var(--carbon);
+      transition: border-color 0.2s;
+    }
+
+    .auth-form input:focus {
+      outline: none;
+      border-color: var(--terracota);
+    }
+
+    .auth-form .btn-primary {
+      width: 100%;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .auth-error {
+      color: #c0392b;
+      font-size: 0.85rem;
+      text-align: center;
+      display: none;
+    }
+
+    .auth-exito {
+      color: var(--oliva);
+      font-size: 0.85rem;
+      text-align: center;
+      display: none;
+    }
+
+    .auth-volver {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--gris);
+    }
+
+    .auth-volver a {
+      color: var(--terracota);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-logo"><a href="../index.html" style="text-decoration:none;color:inherit;">Casa <em>Reflexión</em></a></div>
+    <ul class="nav-links">
+      <li><a href="../index.html">Inicio</a></li>
+      <li class="nav-dropdown">
+        <a href="javascript:void(0)">Productos ▾</a>
+        <ul class="dropdown-menu">
+          <li><a href="../index.html">🪞 Espejos</a></li>
+          <li><a href="../index.html">🖼️ Cuadros</a></li>
+          <li><a href="../index.html">🏮 Lámparas</a></li>
+          <li><a href="../index.html">🚿 Baño</a></li>
+          <li><a href="../index.html">🪴 Maseteros</a></li>
+          <li><a href="../index.html">🕯️ Velas</a></li>
+          <li><a href="../index.html">🛏️ Ropa de cama</a></li>
+        </ul>
+      </li>
+      <li><a href="../index.html#nosotros">Nosotros</a></li>
+      <li><a href="../index.html#contacto">Contacto</a></li>
+    </ul>
+    <div class="nav-cart">
+      <span class="cart-icon">🛒</span>
+      <span class="cart-count">0</span>
+    </div>
+  </nav>
+
+  <!-- FORMULARIO -->
+  <section class="auth-section">
+    <div class="auth-card">
+      <div class="auth-logo">Casa <em>Reflexión</em></div>
+
+      <!-- TABS -->
+      <div class="auth-tabs">
+        <div class="auth-tab activo" onclick="cambiarTab('login')">Iniciar sesión</div>
+        <div class="auth-tab" onclick="cambiarTab('registro')">Crear cuenta</div>
+      </div>
+
+      <!-- LOGIN -->
+      <form class="auth-form activo" id="form-login" onsubmit="login(event)">
+        <input type="email" id="login-email" placeholder="Correo electrónico" required />
+        <input type="password" id="login-password" placeholder="Contraseña" required />
+        <p class="auth-error" id="login-error"></p>
+        <button type="submit" class="btn-primary">Iniciar sesión</button>
+      </form>
+
+      <!-- REGISTRO -->
+      <form class="auth-form" id="form-registro" onsubmit="registro(event)">
+        <input type="text" id="registro-nombre" placeholder="Tu nombre" required />
+        <input type="email" id="registro-email" placeholder="Correo electrónico" required />
+        <input type="password" id="registro-password" placeholder="Contraseña (mínimo 6 caracteres)" required minlength="6" />
+        <p class="auth-error" id="registro-error"></p>
+        <p class="auth-exito" id="registro-exito">✅ Cuenta creada! Redirigiendo...</p>
+        <button type="submit" class="btn-primary">Crear cuenta</button>
+      </form>
+
+      <div class="auth-volver">
+        <a href="../index.html">← Volver a la tienda</a>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const API = 'http://localhost:3000/api';
+
+    function cambiarTab(tab) {
+      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('activo'));
+      document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('activo'));
+
+      if (tab === 'login') {
+        document.querySelectorAll('.auth-tab')[0].classList.add('activo');
+        document.getElementById('form-login').classList.add('activo');
+      } else {
+        document.querySelectorAll('.auth-tab')[1].classList.add('activo');
+        document.getElementById('form-registro').classList.add('activo');
+      }
+    }
+
+    async function login(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      const error = document.getElementById('login-error');
+
+      try {
+        const res = await fetch(`${API}/usuarios/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          error.textContent = data.error;
+          error.style.display = 'block';
+          return;
+        }
+
+        // Guardar token y usuario
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('usuario', JSON.stringify(data.usuario));
+
+        // Redirigir a la tienda
+        window.location.href = '../index.html';
+
+      } catch (err) {
+        error.textContent = 'Error al conectar con el servidor';
+        error.style.display = 'block';
+      }
+    }
+
+    async function registro(e) {
+      e.preventDefault();
+      const nombre = document.getElementById('registro-nombre').value;
+      const email = document.getElementById('registro-email').value;
+      const password = document.getElementById('registro-password').value;
+      const error = document.getElementById('registro-error');
+      const exito = document.getElementById('registro-exito');
+
+      try {
+        const res = await fetch(`${API}/usuarios/registro`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre, email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          error.textContent = data.error;
+          error.style.display = 'block';
+          return;
+        }
+
+        // Guardar token y usuario
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('usuario', JSON.stringify(data.usuario));
+
+        exito.style.display = 'block';
+        setTimeout(() => { window.location.href = '../index.html'; }, 1500);
+
+      } catch (err) {
+        error.textContent = 'Error al conectar con el servidor';
+        error.style.display = 'block';
+      }
+    }
+  </script>
+</body>
+</html>

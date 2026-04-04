@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panel Admin – Casa Reflexión</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    .admin-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      min-height: 100vh;
+    }
+
+    .admin-sidebar {
+      background: var(--carbon);
+      padding: 2rem 1.5rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 240px;
+      z-index: 50;
+    }
+
+    .admin-sidebar-logo {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      color: var(--crema);
+      margin-bottom: 0.3rem;
+    }
+
+    .admin-sidebar p {
+      font-size: 0.75rem;
+      color: #6b6050;
+      margin-bottom: 2rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .admin-nav a {
+      display: block;
+      padding: 0.75rem 1rem;
+      color: #a09880;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      margin-bottom: 0.3rem;
+      transition: all 0.2s;
+    }
+
+    .admin-nav a:hover, .admin-nav a.activo {
+      background: rgba(181,105,79,0.15);
+      color: var(--terracota);
+    }
+
+    .admin-nav a span {
+      margin-right: 0.6rem;
+    }
+
+    .admin-volver {
+      position: absolute;
+      bottom: 2rem;
+      left: 1.5rem;
+      right: 1.5rem;
+    }
+
+    .admin-volver a {
+      display: block;
+      text-align: center;
+      padding: 0.7rem;
+      border: 1px solid #3d3530;
+      border-radius: 6px;
+      color: #6b6050;
+      text-decoration: none;
+      font-size: 0.82rem;
+      transition: all 0.2s;
+    }
+
+    .admin-volver a:hover { color: var(--crema); border-color: #6b6050; }
+
+    .admin-main {
+      margin-left: 240px;
+      padding: 2.5rem;
+      background: var(--crema);
+      min-height: 100vh;
+    }
+
+    .admin-section { display: none; }
+    .admin-section.activo { display: block; }
+
+    .admin-header {
+      margin-bottom: 2rem;
+    }
+
+    .admin-header h1 {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 300;
+    }
+
+    /* FORMULARIO */
+    .admin-form {
+      background: var(--blanco);
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: var(--sombra);
+      margin-bottom: 2rem;
+    }
+
+    .admin-form h2 {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 400;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--arena);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .form-group label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--gris);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 0.8rem 1rem;
+      border: 1.5px solid var(--arena);
+      border-radius: 8px;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      color: var(--carbon);
+      background: var(--crema);
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--terracota);
+    }
+
+    .form-group.full { grid-column: 1 / -1; }
+
+    .preview-foto {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      object-fit: cover;
+      display: none;
+      margin-top: 0.5rem;
+    }
+
+    .form-acciones {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .btn-cancelar-form {
+      padding: 0.85rem 2rem;
+      border: 1.5px solid var(--arena);
+      border-radius: 4px;
+      background: transparent;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      color: var(--gris);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-cancelar-form:hover { border-color: var(--carbon); color: var(--carbon); }
+
+    /* TABLA PRODUCTOS */
+    .admin-tabla {
+      background: var(--blanco);
+      border-radius: var(--radius);
+      box-shadow: var(--sombra);
+      overflow: hidden;
+    }
+
+    .tabla-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--arena);
+    }
+
+    .tabla-header h2 {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 400;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      padding: 0.9rem 1.2rem;
+      text-align: left;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gris);
+      border-bottom: 1px solid var(--arena);
+      background: var(--crema);
+    }
+
+    td {
+      padding: 1rem 1.2rem;
+      border-bottom: 1px solid var(--arena);
+      font-size: 0.88rem;
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #faf8f5; }
+
+    .td-foto {
+      width: 50px;
+      height: 50px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+
+    .td-emoji {
+      width: 50px;
+      height: 50px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .badge-categoria {
+      padding: 0.3rem 0.7rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      background: var(--crema);
+      color: var(--gris);
+    }
+
+    .badge-destacado {
+      padding: 0.3rem 0.7rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      background: #fef3cd;
+      color: #856404;
+    }
+
+    .td-acciones {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn-editar, .btn-eliminar-admin {
+      padding: 0.4rem 0.9rem;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      font-family: var(--font-body);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-editar {
+      background: transparent;
+      border: 1.5px solid var(--arena);
+      color: var(--carbon);
+    }
+
+    .btn-editar:hover { border-color: var(--terracota); color: var(--terracota); }
+
+    .btn-eliminar-admin {
+      background: transparent;
+      border: 1.5px solid var(--arena);
+      color: var(--gris);
+    }
+
+    .btn-eliminar-admin:hover { border-color: #c0392b; color: #c0392b; }
+
+    /* USUARIOS */
+    .usuario-row td:last-child { color: var(--gris); font-size: 0.82rem; }
+
+    .badge-admin {
+      padding: 0.3rem 0.7rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .badge-cliente {
+      padding: 0.3rem 0.7rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      background: var(--crema);
+      color: var(--gris);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--carbon);
+      color: var(--crema);
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      z-index: 999;
+      animation: fadeUp 0.3s ease;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+
+    .admin-tabla {
+  display: block !important;
+  width: 100%;
+  margin-top: 2rem;
+}
+
+table {
+  display: table !important;
+  width: 100%;
+}
+
+.admin-tabla {
+  overflow: visible !important;
+}
+
+.admin-main {
+  width: calc(100vw - 240px) !important;
+  overflow: visible !important;
+  min-width: 0 !important;
+}
+
+.admin-form {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.form-grid {
+  width: 100% !important;
+}
+
+.admin-form {
+  width: 100% !important;
+}
+  </style>
+</head>
+<body>
+
+<div class="admin-layout">
+  <!-- SIDEBAR -->
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar-logo">Casa <em>Reflexión</em></div>
+    <p>Panel Admin</p>
+    <nav class="admin-nav">
+      <a href="javascript:void(0)" class="activo" onclick="mostrarSeccion('productos')"><span>📦</span> Productos</a>
+      <a href="javascript:void(0)" onclick="mostrarSeccion('usuarios')"><span>👥</span> Usuarios</a>
+    </nav>
+    <div class="admin-volver">
+      <a href="../index.html">← Volver a la tienda</a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="admin-main">
+
+    <!-- SECCIÓN PRODUCTOS -->
+    <div class="admin-section activo" id="sec-productos">
+      <div class="admin-header">
+        <p class="section-tag">Administrador</p>
+        <h1>Gestión de <em>Productos</em></h1>
+      </div>
+
+      <!-- FORMULARIO -->
+      <div class="admin-form">
+        <h2 id="form-titulo">Agregar nuevo producto</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" id="prod-nombre" placeholder="Ej: Espejo Luna" />
+          </div>
+          <div class="form-group">
+            <label>Precio (CLP)</label>
+            <input type="number" id="prod-precio" placeholder="Ej: 39900" />
+          </div>
+          <div class="form-group">
+            <label>Categoría</label>
+            <select id="prod-categoria">
+              <option value="">Seleccionar...</option>
+              <option value="espejos">Espejos</option>
+              <option value="cuadros">Cuadros</option>
+              <option value="lamparas">Lámparas</option>
+              <option value="bano">Baño</option>
+              <option value="maseteros">Maseteros</option>
+              <option value="velas">Velas</option>
+              <option value="ropa-de-cama">Ropa de cama</option>
+              <option value="ceramica">Cerámica</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Emoji</label>
+            <input type="text" id="prod-emoji" placeholder="Ej: 🪞" />
+          </div>
+          <div class="form-group">
+            <label>Stock</label>
+            <input type="number" id="prod-stock" placeholder="Ej: 10" value="10" />
+          </div>
+          <div class="form-group">
+            <label>Destacado</label>
+            <select id="prod-destacado">
+              <option value="0">No</option>
+              <option value="1">Sí</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label>Descripción</label>
+            <textarea id="prod-descripcion" rows="2" placeholder="Descripción del producto..."></textarea>
+          </div>
+          <div class="form-group full">
+            <label>Foto del producto</label>
+            <input type="file" id="prod-foto" accept="image/*" onchange="previewFoto(this)" />
+            <img id="foto-preview" class="preview-foto" />
+          </div>
+        </div>
+        <input type="hidden" id="prod-id" value="" />
+        <div class="form-acciones">
+          <button class="btn-primary" onclick="guardarProducto()">Guardar producto</button>
+          <button class="btn-cancelar-form" onclick="limpiarFormulario()">Cancelar</button>
+        </div>
+      </div>
+
+      <!-- TABLA -->
+      <div class="admin-tabla">
+        <div class="tabla-header">
+          <h2>Productos registrados</h2>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Foto</th>
+              <th>Nombre</th>
+              <th>Categoría</th>
+              <th>Precio</th>
+              <th>Stock</th>
+              <th>Destacado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-productos"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SECCIÓN USUARIOS -->
+    <div class="admin-section" id="sec-usuarios">
+      <div class="admin-header">
+        <p class="section-tag">Administrador</p>
+        <h1>Gestión de <em>Usuarios</em></h1>
+      </div>
+      <div class="admin-tabla">
+        <div class="tabla-header">
+          <h2>Usuarios registrados</h2>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Rol</th>
+              <th>Registrado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-usuarios"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  const API = 'http://localhost:3000/api';
+  const token = localStorage.getItem('token');
+  const usuario = JSON.parse(localStorage.getItem('usuario'));
+
+  if (!token || !usuario || usuario.rol !== 'admin') {
+    window.location.href = 'login.html';
+  }
+
+  function mostrarSeccion(sec) {
+    document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('activo'));
+    document.querySelectorAll('.admin-nav a').forEach(a => a.classList.remove('activo'));
+    document.getElementById(`sec-${sec}`).classList.add('activo');
+    event.target.classList.add('activo');
+
+    if (sec === 'productos') cargarProductos();
+    if (sec === 'usuarios') cargarUsuarios();
+  }
+
+  // ── PRODUCTOS ──
+  async function cargarProductos() {
+    const res = await fetch(`${API}/admin/productos`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const productos = await res.json();
+    const tbody = document.getElementById('tabla-productos');
+
+    tbody.innerHTML = productos.map(p => `
+      <tr>
+        <td>
+          ${p.foto
+            ? `<img src="${p.foto}" class="td-foto" />`
+            : `<div class="td-emoji" style="background:${p.color_fondo}">${p.emoji}</div>`
+          }
+        </td>
+        <td><strong>${p.nombre}</strong></td>
+        <td><span class="badge-categoria">${p.categoria}</span></td>
+        <td>$${p.precio.toLocaleString('es-CL')}</td>
+        <td>${p.stock}</td>
+        <td>${p.destacado ? '<span class="badge-destacado">⭐ Sí</span>' : 'No'}</td>
+        <td>
+          <div class="td-acciones">
+            <button class="btn-editar" onclick="editarProducto(${p.id})">Editar</button>
+            <button class="btn-eliminar-admin" onclick="eliminarProducto(${p.id}, '${p.nombre}')">Eliminar</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function previewFoto(input) {
+    const preview = document.getElementById('foto-preview');
+    if (input.files && input.files[0]) {
+      preview.src = URL.createObjectURL(input.files[0]);
+      preview.style.display = 'block';
+    }
+  }
+
+  async function guardarProducto() {
+    const id = document.getElementById('prod-id').value;
+    const formData = new FormData();
+    formData.append('nombre', document.getElementById('prod-nombre').value);
+    formData.append('precio', document.getElementById('prod-precio').value);
+    formData.append('categoria', document.getElementById('prod-categoria').value);
+    formData.append('emoji', document.getElementById('prod-emoji').value);
+    formData.append('descripcion', document.getElementById('prod-descripcion').value);
+    formData.append('stock', document.getElementById('prod-stock').value);
+    formData.append('destacado', document.getElementById('prod-destacado').value);
+
+    const foto = document.getElementById('prod-foto').files[0];
+    if (foto) formData.append('foto', foto);
+
+    const url = id ? `${API}/admin/productos/${id}` : `${API}/admin/productos`;
+    const method = id ? 'PUT' : 'POST';
+
+    const res = await fetch(url, {
+      method,
+      headers: { 'Authorization': `Bearer ${token}` },
+      body: formData
+    });
+
+    if (res.ok) {
+      mostrarToast(id ? '✅ Producto actualizado' : '✅ Producto agregado');
+      limpiarFormulario();
+      cargarProductos();
+    } else {
+      const data = await res.json();
+      mostrarToast(`❌ ${data.error}`);
+    }
+  }
+
+  async function editarProducto(id) {
+    const res = await fetch(`${API}/productos/${id}`);
+    const p = await res.json();
+
+    document.getElementById('prod-id').value = p.id;
+    document.getElementById('prod-nombre').value = p.nombre;
+    document.getElementById('prod-precio').value = p.precio;
+    document.getElementById('prod-categoria').value = p.categoria;
+    document.getElementById('prod-emoji').value = p.emoji || '';
+    document.getElementById('prod-descripcion').value = p.descripcion || '';
+    document.getElementById('prod-stock').value = p.stock;
+    document.getElementById('prod-destacado').value = p.destacado;
+    document.getElementById('form-titulo').textContent = 'Editar producto';
+
+    if (p.foto) {
+      const preview = document.getElementById('foto-preview');
+      preview.src = p.foto;
+      preview.style.display = 'block';
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  async function eliminarProducto(id, nombre) {
+    if (!confirm(`¿Eliminar "${nombre}"?`)) return;
+
+    const res = await fetch(`${API}/admin/productos/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (res.ok) {
+      mostrarToast('✅ Producto eliminado');
+      cargarProductos();
+    }
+  }
+
+  function limpiarFormulario() {
+    document.getElementById('prod-id').value = '';
+    document.getElementById('prod-nombre').value = '';
+    document.getElementById('prod-precio').value = '';
+    document.getElementById('prod-categoria').value = '';
+    document.getElementById('prod-emoji').value = '';
+    document.getElementById('prod-descripcion').value = '';
+    document.getElementById('prod-stock').value = '10';
+    document.getElementById('prod-destacado').value = '0';
+    document.getElementById('prod-foto').value = '';
+    document.getElementById('foto-preview').style.display = 'none';
+    document.getElementById('form-titulo').textContent = 'Agregar nuevo producto';
+  }
+
+  // ── USUARIOS ──
+  async function cargarUsuarios() {
+    const res = await fetch(`${API}/admin/usuarios`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const usuarios = await res.json();
+    const tbody = document.getElementById('tabla-usuarios');
+
+    tbody.innerHTML = usuarios.map(u => `
+      <tr class="usuario-row">
+        <td>${u.id}</td>
+        <td><strong>${u.nombre}</strong></td>
+        <td>${u.email}</td>
+        <td><span class="badge-${u.rol}">${u.rol}</span></td>
+        <td>${new Date(u.creado_en).toLocaleDateString('es-CL')}</td>
+        <td>
+          <button class="btn-editar" onclick="cambiarRol(${u.id}, '${u.rol}')">
+            ${u.rol === 'admin' ? 'Quitar admin' : 'Hacer admin'}
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  async function cambiarRol(id, rolActual) {
+    const nuevoRol = rolActual === 'admin' ? 'cliente' : 'admin';
+    await fetch(`${API}/admin/usuarios/${id}/rol`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ rol: nuevoRol })
+    });
+    mostrarToast(`✅ Rol actualizado a ${nuevoRol}`);
+    cargarUsuarios();
+  }
+
+  function mostrarToast(msg) {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+
+// Cargar al inicio
+cargarProductos();
+setTimeout(() => {
+  document.getElementById('tabla-productos').closest('.admin-tabla').style.display = 'block';
+}, 500);
+
+
+</script>
+</body>
+</html>
+
+
