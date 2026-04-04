@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 // Servir archivos estáticos del frontend
-app.use(express.static(path.join(__dirname, '..')));
+app.use(express.static(path.join(__dirname, '../..')));
 
 // Ruta de prueba
 app.get('/api/ping', (req, res) => {
