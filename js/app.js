@@ -5,7 +5,9 @@
 history.scrollRestoration = 'manual';
 window.scrollTo(0, 0);
 
-const API = 'http://localhost:3000/api';
+const API = window.location.hostname === 'localhost' 
+  ? 'http://localhost:3000/api' 
+  : 'https://casa-reflexion.onrender.com/api';
 
 let carrito = 0;
 
