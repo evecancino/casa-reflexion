@@ -14,7 +14,7 @@ let carrito = 0;
 // ── CARRITO ──
 async function agregarCarrito(btn, productoId) {
   const token = localStorage.getItem('token');
- 
+  
   if (!token) {
     window.location.href = 'Pages/login.html';
     return;
