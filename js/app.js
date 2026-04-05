@@ -10,7 +10,7 @@ const API = window.location.hostname === 'localhost'
   : 'https://casa-reflexion.onrender.com/api';
 
 let carrito = 0;
-
+ 
 // ── CARRITO ──
 async function agregarCarrito(btn, productoId) {
   const token = localStorage.getItem('token');
