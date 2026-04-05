@@ -686,3 +686,79 @@ em { font-style: italic; color: var(--terracota); }
   transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   opacity: 1;
 }
+/* ── NAVBAR MÓVIL ── */
+@media (max-width: 768px) {
+  .navbar {
+    flex-wrap: wrap;
+    padding: 1rem 4vw;
+    gap: 0.5rem;
+  }
+
+  .nav-links {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    background: var(--blanco);
+    border-top: 1px solid var(--arena);
+    padding: 1rem 0;
+    gap: 0;
+  }
+
+  .nav-links.abierto {
+    display: flex;
+  }
+
+  .nav-links li a {
+    display: block;
+    padding: 0.8rem 1.5rem;
+    font-size: 0.9rem;
+  }
+
+  .dropdown-menu {
+    position: static;
+    box-shadow: none;
+    border: none;
+    transform: none;
+    display: none;
+    padding-left: 1rem;
+  }
+
+  .nav-dropdown.abierto .dropdown-menu {
+    display: block;
+  }
+
+  .btn-hamburguesa {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 0.3rem;
+  }
+
+  .btn-hamburguesa span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--carbon);
+    border-radius: 2px;
+    transition: all 0.3s;
+  }
+
+  .btn-login {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .nav-buscador input {
+    width: 140px;
+  }
+}
+
+@media (min-width: 769px) {
+  .btn-hamburguesa {
+    display: none;
+  }
+}
+.btn-hamburguesa {
+  display: none;
+}

@@ -295,3 +295,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     cargarProductos();
   }
 });
+
+// ── MENÚ MÓVIL ──
+function toggleMenu() {
+  document.querySelector('.nav-links').classList.toggle('abierto');
+}
