@@ -1,77 +1,99 @@
 // ===========================
 //  CASA REFLEXIÓN – app.js
 // ===========================
-// Volver al inicio al recargar
 history.scrollRestoration = 'manual';
 window.scrollTo(0, 0);
 
-const API = window.location.hostname === 'localhost' 
-  ? 'http://localhost:3000/api' 
+const API = window.location.hostname === 'localhost'
+  ? 'http://localhost:3000/api'
   : 'https://casa-reflexion.onrender.com/api';
 
 let carrito = 0;
- 
+
 // ── CARRITO ──
-async function agregarCarrito(btn, productoId) {
+async function agregarCarrito(btn, productoId, nombreProducto, precioProducto, emojiProducto, fondoProducto) {
   const token = localStorage.getItem('token');
-  
-  if (!token) {
-    window.location.href = 'Pages/login.html';
-    return;
-  }
 
-  try {
-    const res = await fetch(`${API}/carrito`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ producto_id: productoId })
-    });
-
-    if (res.ok) {
-      // Animación volar al carrito
-      const emoji = btn.closest('.producto-card').querySelector('.producto-emoji');
-      const carritoIcon = document.querySelector('.nav-cart');
-      
-      const emojiRect = emoji.getBoundingClientRect();
-      const carritoRect = carritoIcon.getBoundingClientRect();
-
-      const volador = document.createElement('div');
-      volador.className = 'volar-emoji';
-      volador.textContent = emoji.textContent;
-      volador.style.left = emojiRect.left + 'px';
-      volador.style.top = emojiRect.top + 'px';
-      document.body.appendChild(volador);
-
-      setTimeout(() => {
-        volador.style.left = carritoRect.left + 'px';
-        volador.style.top = carritoRect.top + 'px';
-        volador.style.fontSize = '0.8rem';
-        volador.style.opacity = '0';
-      }, 50);
-
-      setTimeout(() => volador.remove(), 900);
-
-      btn.textContent = '✓ Agregado';
-      btn.classList.add('agregado');
-      setTimeout(() => {
-        btn.textContent = '+ Agregar';
-        btn.classList.remove('agregado');
-      }, 2000);
-
-      actualizarContadorCarrito();
+  if (token) {
+    try {
+      const res = await fetch(`${API}/carrito`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ producto_id: productoId })
+      });
+      if (res.ok) {
+        animarCarrito(btn);
+        actualizarContadorCarrito();
+      }
+    } catch (err) {
+      console.error('Error al agregar al carrito:', err);
     }
-  } catch (err) {
-    console.error('Error al agregar al carrito:', err);
+  } else {
+    let carritoLocal = JSON.parse(localStorage.getItem('carritoLocal') || '[]');
+    const existe = carritoLocal.find(i => i.id === productoId);
+    if (existe) {
+      existe.cantidad++;
+    } else {
+      carritoLocal.push({
+        id: productoId,
+        nombre: nombreProducto,
+        precio: precioProducto,
+        emoji: emojiProducto,
+        color_fondo: fondoProducto,
+        cantidad: 1
+      });
+    }
+    localStorage.setItem('carritoLocal', JSON.stringify(carritoLocal));
+    animarCarrito(btn);
+    actualizarContadorLocal();
   }
+}
+
+function animarCarrito(btn) {
+  const emoji = btn.closest('.producto-card').querySelector('.producto-emoji');
+  const carritoIcon = document.querySelector('.nav-cart');
+
+  if (emoji) {
+    const emojiRect = emoji.getBoundingClientRect();
+    const carritoRect = carritoIcon.getBoundingClientRect();
+    const volador = document.createElement('div');
+    volador.className = 'volar-emoji';
+    volador.textContent = emoji.textContent;
+    volador.style.left = emojiRect.left + 'px';
+    volador.style.top = emojiRect.top + 'px';
+    document.body.appendChild(volador);
+    setTimeout(() => {
+      volador.style.left = carritoRect.left + 'px';
+      volador.style.top = carritoRect.top + 'px';
+      volador.style.fontSize = '0.8rem';
+      volador.style.opacity = '0';
+    }, 50);
+    setTimeout(() => volador.remove(), 900);
+  }
+
+  btn.textContent = '✓ Agregado';
+  btn.classList.add('agregado');
+  setTimeout(() => {
+    btn.textContent = '+ Agregar';
+    btn.classList.remove('agregado');
+  }, 2000);
+}
+
+function actualizarContadorLocal() {
+  const carritoLocal = JSON.parse(localStorage.getItem('carritoLocal') || '[]');
+  const total = carritoLocal.reduce((s, i) => s + i.cantidad, 0);
+  document.querySelector('.cart-count').textContent = total;
 }
 
 async function actualizarContadorCarrito() {
   const token = localStorage.getItem('token');
-  if (!token) return;
-
+  if (!token) {
+    actualizarContadorLocal();
+    return;
+  }
   try {
     const res = await fetch(`${API}/carrito`, {
       headers: { 'Authorization': `Bearer ${token}` }
@@ -103,7 +125,6 @@ function buscarProductos() {
     const orden = document.getElementById('orden')?.value || '';
     const categoria = document.getElementById('categoria-filtro')?.value || '';
 
-    // Si está vacío mostrar todo de nuevo
     if (!buscar && !orden && !categoria) {
       mostrarPaginaCompleta();
       return;
@@ -133,11 +154,11 @@ function ocultarPaginaCompleta() {
   document.querySelector('.contacto').style.display = 'none';
   document.querySelector('.productos').style.paddingTop = '6rem';
   document.querySelector('.section-header').style.display = 'none';
-  window.scrollTo({ top: 0, behavior: 'smooth' }); // ← agrega esta línea
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function mostrarPaginaCompleta() {
-  document.getElementById('buscador').value = ''; // ← agrega esta línea
+  document.getElementById('buscador').value = '';
   document.querySelector('.hero').style.display = '';
   document.querySelector('.categorias').style.display = '';
   document.querySelector('.banner-medio').style.display = '';
@@ -160,19 +181,19 @@ function renderizarProductos(productos) {
   grid.innerHTML = productos.map(p => `
     <div class="producto-card ${p.destacado ? 'destacado' : ''}">
       ${p.destacado ? '<div class="badge">Popular</div>' : ''}
-     <div class="producto-img" style="background:${p.color_fondo};">
-  ${p.foto 
-    ? `<img src="${p.foto}" style="width:100%;height:100%;object-fit:cover;" />` 
-    : `<span class="producto-emoji">${p.emoji}</span>`
-  }
-</div>
+      <div class="producto-img" style="background:${p.color_fondo};">
+        ${p.foto
+          ? `<img src="${p.foto}" style="width:100%;height:100%;object-fit:cover;" />`
+          : `<span class="producto-emoji">${p.emoji}</span>`
+        }
+      </div>
       <div class="producto-info">
         <p class="producto-categoria">${p.categoria}</p>
         <h3>${p.nombre}</h3>
         <p class="producto-desc">${p.descripcion}</p>
         <div class="producto-footer">
           <span class="producto-precio">$${p.precio.toLocaleString('es-CL')}</span>
-          <button class="btn-agregar" onclick="agregarCarrito(this, ${p.id})">+ Agregar</button>
+          <button class="btn-agregar" onclick="agregarCarrito(this, ${p.id}, '${p.nombre.replace(/'/g, "\\'")}', ${p.precio}, '${p.emoji}', '${p.color_fondo}')">+ Agregar</button>
         </div>
       </div>
     </div>
@@ -258,7 +279,6 @@ function actualizarNavbar() {
       menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
     };
 
-    // Agregar menú desplegable
     btnLogin.insertAdjacentHTML('afterend', `
       <div id="menu-usuario" style="display:none; position:absolute; right:6vw; top:70px; background:var(--blanco); border:1px solid var(--arena); border-radius:var(--radius); box-shadow:0 8px 32px rgba(42,37,32,0.12); min-width:180px; z-index:200;">
         <p style="padding:1rem 1.2rem; font-size:0.85rem; color:var(--gris); border-bottom:1px solid var(--arena);">Hola, <strong>${usuario.nombre}</strong></p>
@@ -266,14 +286,16 @@ function actualizarNavbar() {
       </div>
     `);
 
-    // Cerrar al hacer clic fuera
     document.addEventListener('click', (e) => {
       if (!btnLogin.contains(e.target)) {
         const menu = document.getElementById('menu-usuario');
         if (menu) menu.style.display = 'none';
       }
     });
+
     actualizarContadorCarrito();
+  } else {
+    actualizarContadorLocal();
   }
 }
 
@@ -284,17 +306,6 @@ function cerrarSesion() {
 }
 
 actualizarNavbar();
-
-// Verificar si viene con categoría desde otra página
-document.addEventListener('DOMContentLoaded', async () => {
-  const categoriaGuardada = sessionStorage.getItem('categoria');
-  if (categoriaGuardada) {
-    sessionStorage.removeItem('categoria');
-    await filtrarCategoria(categoriaGuardada);
-  } else {
-    cargarProductos();
-  }
-});
 
 // ── MENÚ MÓVIL ──
 function toggleMenu() {
