@@ -130,7 +130,7 @@
           <li><a href="../index.html">🖼️ Cuadros</a></li>
           <li><a href="../index.html">🏮 Lámparas</a></li>
           <li><a href="../index.html">🚿 Baño</a></li>
-          <li><a href="../index.html">🪴 Maseteros</a></li>
+          <li><a href="../index.html">🪴 Maceteros</a></li>
           <li><a href="../index.html">🕯️ Velas</a></li>
           <li><a href="../index.html">🛏️ Ropa de cama</a></li>
         </ul>
@@ -180,7 +180,9 @@
   </section>
 
   <script>
-    const API = 'http://localhost:3000/api';
+  const API = window.location.hostname === 'localhost' 
+  ? 'http://localhost:3000/api' 
+  : 'https://casa-reflexion.onrender.com/api';
 
     function cambiarTab(tab) {
       document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('activo'));
