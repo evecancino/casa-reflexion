@@ -1,13 +1,18 @@
 const { Pool } = require('pg');
 
-const pool = new Pool({
-  host: 'localhost',
-  port: 5432,
-  database: 'casareflexion',
-  user: 'postgres',
-  password: 'Evelyn10',
-  ssl: false
-});
+const pool = process.env.DATABASE_URL
+  ? new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false }
+    })
+  : new Pool({
+      host: 'localhost',
+      port: 5432,
+      database: 'casareflexion',
+      user: 'postgres',
+      password: 'Evelyn10',
+      ssl: false
+    });
 
 async function inicializarDB() {
   const client = await pool.connect();
