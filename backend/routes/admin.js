@@ -3,11 +3,10 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const jwt = require('jsonwebtoken');
-const db = require('../database');
+const db = require('../database-pg');
 
-const SECRET = 'casareflexion_secret_2026';
+const SECRET = process.env.JWT_SECRET || 'casareflexion_secret_2026';
 
-// Configuración de multer para subir imágenes
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join(__dirname, '../../img/productos'));
@@ -26,10 +25,9 @@ const upload = multer({
     if (tipos.includes(ext)) cb(null, true);
     else cb(new Error('Solo se permiten imágenes jpg, png o webp'));
   },
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB máximo
+  limits: { fileSize: 5 * 1024 * 1024 }
 });
 
-// Middleware para verificar admin
 function verificarAdmin(req, res, next) {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).json({ error: 'No autorizado' });
@@ -43,71 +41,82 @@ function verificarAdmin(req, res, next) {
   }
 }
 
-// GET /api/admin/productos — listar todos los productos
-router.get('/productos', verificarAdmin, (req, res) => {
-  const productos = db.prepare('SELECT * FROM productos ORDER BY id DESC').all();
-  res.json(productos);
+// GET /api/admin/productos
+router.get('/productos', verificarAdmin, async (req, res) => {
+  try {
+    const { rows } = await db.query('SELECT * FROM productos ORDER BY id DESC');
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener productos' });
+  }
 });
 
-// POST /api/admin/productos — agregar producto con foto
-router.post('/productos', verificarAdmin, upload.single('foto'), (req, res) => {
+// POST /api/admin/productos
+router.post('/productos', verificarAdmin, upload.single('foto'), async (req, res) => {
   const { nombre, descripcion, precio, categoria, emoji, destacado, stock } = req.body;
-
   if (!nombre || !precio || !categoria) {
     return res.status(400).json({ error: 'Nombre, precio y categoría son obligatorios' });
   }
-
   const foto = req.file ? `/img/productos/${req.file.filename}` : null;
-
-  const resultado = db.prepare(`
-    INSERT INTO productos (nombre, descripcion, precio, categoria, emoji, foto, destacado, stock)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(nombre, descripcion, precio, categoria, emoji || '🏠', foto, destacado || 0, stock || 10);
-
-  const nuevo = db.prepare('SELECT * FROM productos WHERE id = ?').get(resultado.lastInsertRowid);
-  res.status(201).json(nuevo);
+  try {
+    const { rows } = await db.query(
+      'INSERT INTO productos (nombre, descripcion, precio, categoria, emoji, foto, destacado, stock) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *',
+      [nombre, descripcion, precio, categoria, emoji || '🏠', foto, destacado || 0, stock || 10]
+    );
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al crear producto' });
+  }
 });
 
-// PUT /api/admin/productos/:id — editar producto
-router.put('/productos/:id', verificarAdmin, upload.single('foto'), (req, res) => {
+// PUT /api/admin/productos/:id
+router.put('/productos/:id', verificarAdmin, upload.single('foto'), async (req, res) => {
   const { nombre, descripcion, precio, categoria, emoji, destacado, stock } = req.body;
-
-  const existe = db.prepare('SELECT * FROM productos WHERE id = ?').get(req.params.id);
-  if (!existe) return res.status(404).json({ error: 'Producto no encontrado' });
-
-  const foto = req.file ? `/img/productos/${req.file.filename}` : existe.foto;
-
-  db.prepare(`
-    UPDATE productos SET nombre=?, descripcion=?, precio=?, categoria=?, emoji=?, foto=?, destacado=?, stock=?
-    WHERE id=?
-  `).run(nombre, descripcion, precio, categoria, emoji, foto, destacado, stock, req.params.id);
-
-  const actualizado = db.prepare('SELECT * FROM productos WHERE id = ?').get(req.params.id);
-  res.json(actualizado);
+  try {
+    const existe = await db.query('SELECT foto FROM productos WHERE id = $1', [req.params.id]);
+    if (existe.rows.length === 0) return res.status(404).json({ error: 'Producto no encontrado' });
+    const foto = req.file ? `/img/productos/${req.file.filename}` : existe.rows[0].foto;
+    const { rows } = await db.query(
+      'UPDATE productos SET nombre=$1, descripcion=$2, precio=$3, categoria=$4, emoji=$5, foto=$6, destacado=$7, stock=$8 WHERE id=$9 RETURNING *',
+      [nombre, descripcion, precio, categoria, emoji, foto, destacado, stock, req.params.id]
+    );
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al actualizar producto' });
+  }
 });
 
-// DELETE /api/admin/productos/:id — eliminar producto
-router.delete('/productos/:id', verificarAdmin, (req, res) => {
-  const existe = db.prepare('SELECT id FROM productos WHERE id = ?').get(req.params.id);
-  if (!existe) return res.status(404).json({ error: 'Producto no encontrado' });
-
-  db.prepare('DELETE FROM productos WHERE id = ?').run(req.params.id);
-  res.json({ mensaje: 'Producto eliminado' });
+// DELETE /api/admin/productos/:id
+router.delete('/productos/:id', verificarAdmin, async (req, res) => {
+  try {
+    const { rows } = await db.query('DELETE FROM productos WHERE id=$1 RETURNING id', [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ error: 'Producto no encontrado' });
+    res.json({ mensaje: 'Producto eliminado' });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al eliminar producto' });
+  }
 });
 
-// GET /api/admin/usuarios — listar usuarios
-router.get('/usuarios', verificarAdmin, (req, res) => {
-  const usuarios = db.prepare('SELECT id, nombre, email, rol, creado_en FROM usuarios ORDER BY id DESC').all();
-  res.json(usuarios);
+// GET /api/admin/usuarios
+router.get('/usuarios', verificarAdmin, async (req, res) => {
+  try {
+    const { rows } = await db.query('SELECT id, nombre, email, rol, creado_en FROM usuarios ORDER BY id DESC');
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener usuarios' });
+  }
 });
 
-// PUT /api/admin/usuarios/:id/rol — cambiar rol de usuario
-router.put('/usuarios/:id/rol', verificarAdmin, (req, res) => {
+// PUT /api/admin/usuarios/:id/rol
+router.put('/usuarios/:id/rol', verificarAdmin, async (req, res) => {
   const { rol } = req.body;
   if (!['admin', 'cliente'].includes(rol)) return res.status(400).json({ error: 'Rol inválido' });
-
-  db.prepare('UPDATE usuarios SET rol = ? WHERE id = ?').run(rol, req.params.id);
-  res.json({ mensaje: 'Rol actualizado' });
+  try {
+    await db.query('UPDATE usuarios SET rol = $1 WHERE id = $2', [rol, req.params.id]);
+    res.json({ mensaje: 'Rol actualizado' });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al actualizar rol' });
+  }
 });
 
 module.exports = router;

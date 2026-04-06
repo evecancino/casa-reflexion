@@ -1,9 +1,18 @@
+require('dotenv').config();
 const express = require('express');
+
+process.on('uncaughtException', (err) => {
+  console.error('Error no capturado:', err.message);
+});
+
+process.on('unhandledRejection', (err) => {
+  console.error('Promesa rechazada:', err.message);
+});
 const cors = require('cors');
 const path = require('path');
 
 const app = express();
-const db = require('./database');  // ← solo agregas esta línea
+const db = require('./database-pg');
 const PORT = 3000;
 
 // Middlewares
@@ -33,6 +42,12 @@ app.use('/api/pagos', pagosRoutes);
 
 const adminRoutes = require('./routes/admin');
 app.use('/api/admin', adminRoutes);
+
+// Manejador de errores global (Express 5)
+app.use((err, req, res, next) => {
+  console.error('Error en ruta:', err.message);
+  res.status(err.status || 500).json({ error: err.message || 'Error interno del servidor' });
+});
 
 // Iniciar servidor
 app.listen(PORT, () => {
