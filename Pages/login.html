@@ -197,6 +197,27 @@
       }
     }
 
+    async function migrarCarritoLocal(token) {
+      const carritoLocal = JSON.parse(localStorage.getItem('carritoLocal') || '[]');
+      if (carritoLocal.length === 0) return;
+
+      for (const item of carritoLocal) {
+        for (let i = 0; i < item.cantidad; i++) {
+          await fetch(`${API}/carrito`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ producto_id: item.id })
+          });
+        }
+      }
+
+      // Limpiar carrito local después de migrar
+      localStorage.removeItem('carritoLocal');
+    }
+
     async function login(e) {
       e.preventDefault();
       const email = document.getElementById('login-email').value;
@@ -222,8 +243,13 @@
         localStorage.setItem('token', data.token);
         localStorage.setItem('usuario', JSON.stringify(data.usuario));
 
-        // Redirigir a la tienda
-        window.location.href = '../index.html';
+        // Migrar carrito local a la BD
+        await migrarCarritoLocal(data.token);
+
+        // Redirigir a donde venía el usuario
+        const redirigir = sessionStorage.getItem('redirigirTrasLogin') || '../index.html';
+        sessionStorage.removeItem('redirigirTrasLogin');
+        window.location.href = redirigir;
 
       } catch (err) {
         error.textContent = 'Error al conectar con el servidor';
@@ -258,8 +284,13 @@
         localStorage.setItem('token', data.token);
         localStorage.setItem('usuario', JSON.stringify(data.usuario));
 
+        // Migrar carrito local a la BD
+        await migrarCarritoLocal(data.token);
+
         exito.style.display = 'block';
-        setTimeout(() => { window.location.href = '../index.html'; }, 1500);
+        const redirigir = sessionStorage.getItem('redirigirTrasLogin') || '../index.html';
+        sessionStorage.removeItem('redirigirTrasLogin');
+        setTimeout(() => { window.location.href = redirigir; }, 1500);
 
       } catch (err) {
         error.textContent = 'Error al conectar con el servidor';

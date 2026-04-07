@@ -272,7 +272,7 @@ function actualizarNavbar() {
   if (!btnLogin) return;
 
   if (usuario) {
-    btnLogin.textContent = `👤 ${usuario.nombre}`;
+    btnLogin.textContent = `👤 Hola, ${usuario.nombre}`;
     btnLogin.href = 'javascript:void(0)';
     btnLogin.onclick = () => {
       const menu = document.getElementById('menu-usuario');
@@ -281,7 +281,6 @@ function actualizarNavbar() {
 
     btnLogin.insertAdjacentHTML('afterend', `
       <div id="menu-usuario" style="display:none; position:absolute; right:6vw; top:70px; background:var(--blanco); border:1px solid var(--arena); border-radius:var(--radius); box-shadow:0 8px 32px rgba(42,37,32,0.12); min-width:180px; z-index:200;">
-        <p style="padding:1rem 1.2rem; font-size:0.85rem; color:var(--gris); border-bottom:1px solid var(--arena);">Hola, <strong>${usuario.nombre}</strong></p>
         <a href="javascript:void(0)" onclick="cerrarSesion()" style="display:block; padding:0.85rem 1.2rem; font-size:0.85rem; color:var(--terracota); text-decoration:none;">Cerrar sesión</a>
       </div>
     `);

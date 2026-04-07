@@ -132,7 +132,7 @@
   </style>
 </head>
 <body>
- 
+
   <!-- NAVBAR -->
   <nav class="navbar">
     <div class="nav-logo"><a href="../index.html" style="text-decoration:none;color:inherit;">Casa <em>Reflexión</em></a></div>
@@ -153,30 +153,31 @@
       <li><a href="../index.html#nosotros" onclick="sessionStorage.setItem('seccion', 'nosotros')">Nosotros</a></li>
       <li><a href="../index.html#contacto" onclick="sessionStorage.setItem('seccion', 'contacto')">Contacto</a></li>
     </ul>
+    <a href="login.html" class="btn-login">Iniciar sesión</a>
     <div class="nav-cart" onclick="window.location.href='carrito.html'" style="cursor:pointer;">
       <span class="cart-icon">🛒</span>
       <span class="cart-count">0</span>
     </div>
   </nav>
- 
+
   <!-- CARRITO -->
   <section class="carrito-section">
     <div class="carrito-header">
       <p class="section-tag">Mi compra</p>
       <h1>Carrito de <em>compras</em></h1>
     </div>
- 
+
     <div id="aviso-login" style="display:none;" class="aviso-login">
       Estás comprando como invitado. <a href="login.html">Inicia sesión</a> para guardar tu carrito y pagar.
     </div>
- 
+
     <div id="carrito-vacio" class="carrito-vacio" style="display:none;">
       <span>🛒</span>
       <h2>Tu carrito está vacío</h2>
       <p>Agrega productos desde la tienda para comenzar.</p>
       <a href="../index.html" class="btn-primary" style="margin-top:1.5rem; display:inline-block;">Ver productos</a>
     </div>
- 
+
     <div class="carrito-layout" id="carrito-layout">
       <div class="carrito-items" id="carrito-items"></div>
       <div class="carrito-resumen">
@@ -198,31 +199,65 @@
       </div>
     </div>
   </section>
- 
+
   <script>
     const API = window.location.hostname === 'localhost'
       ? 'http://localhost:3000/api'
       : 'https://casa-reflexion.onrender.com/api';
- 
+
     const token = localStorage.getItem('token');
- 
+
+    // ── NAVBAR ──
+    function actualizarNavbar() {
+      const usuario = JSON.parse(localStorage.getItem('usuario'));
+      const btnLogin = document.querySelector('.btn-login');
+      if (!btnLogin) return;
+
+      if (usuario) {
+        btnLogin.textContent = '👤 Hola, ' + usuario.nombre;
+        btnLogin.href = 'javascript:void(0)';
+        btnLogin.onclick = () => {
+          const menu = document.getElementById('menu-usuario');
+          menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        };
+        btnLogin.insertAdjacentHTML('afterend', `
+          <div id="menu-usuario" style="display:none; position:absolute; right:6vw; top:70px; background:var(--blanco); border:1px solid var(--arena); border-radius:var(--radius); box-shadow:0 8px 32px rgba(42,37,32,0.12); min-width:180px; z-index:200;">
+            <a href="javascript:void(0)" onclick="cerrarSesion()" style="display:block; padding:0.85rem 1.2rem; font-size:0.85rem; color:var(--terracota); text-decoration:none;">Cerrar sesión</a>
+          </div>
+        `);
+        document.addEventListener('click', (e) => {
+          if (!btnLogin.contains(e.target)) {
+            const menu = document.getElementById('menu-usuario');
+            if (menu) menu.style.display = 'none';
+          }
+        });
+      }
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('usuario');
+      window.location.reload();
+    }
+
+    // ── CARRITO ──
     async function cargarCarrito() {
       const layout = document.getElementById('carrito-layout');
       const vacio = document.getElementById('carrito-vacio');
       const avisoLogin = document.getElementById('aviso-login');
- 
+
       if (token) {
         const res = await fetch(`${API}/carrito`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
- 
+
         if (data.items.length === 0) {
           layout.style.display = 'none';
           vacio.style.display = 'block';
           return;
         }
- 
+
         layout.style.display = 'grid';
         vacio.style.display = 'none';
         renderizarItems(data.items.map(i => ({
@@ -234,20 +269,20 @@
           cantidad: i.cantidad,
           esLocal: false
         })), data.total);
- 
+
       } else {
         avisoLogin.style.display = 'block';
         const carritoLocal = JSON.parse(localStorage.getItem('carritoLocal') || '[]');
- 
+
         if (carritoLocal.length === 0) {
           layout.style.display = 'none';
           vacio.style.display = 'block';
           return;
         }
- 
+
         layout.style.display = 'grid';
         vacio.style.display = 'none';
-        const total = carritoLocal.reduce((s, i) => s + i.precio * i.cantidad, 0);
+        const total = carritoLocal.reduce((s, i) => s + Number(i.precio) * i.cantidad, 0);
         renderizarItems(carritoLocal.map((i, idx) => ({
           id: idx,
           nombre: i.nombre,
@@ -260,7 +295,7 @@
         })), total);
       }
     }
- 
+
     function renderizarItems(items, total) {
       const container = document.getElementById('carrito-items');
       container.innerHTML = items.map(item => `
@@ -270,7 +305,7 @@
           </div>
           <div class="carrito-item-info">
             <h3>${item.nombre}</h3>
-            <p>$${item.precio.toLocaleString('es-CL')} c/u</p>
+            <p>$${Number(item.precio).toLocaleString('es-CL')} c/u</p>
           </div>
           <div class="carrito-item-controls">
             <button class="btn-cantidad" onclick="cambiarCantidad(${item.id}, ${item.cantidad - 1}, ${item.esLocal})">−</button>
@@ -278,17 +313,17 @@
             <button class="btn-cantidad" onclick="cambiarCantidad(${item.id}, ${item.cantidad + 1}, ${item.esLocal})">+</button>
           </div>
           <div class="carrito-item-precio">
-            $${(item.precio * item.cantidad).toLocaleString('es-CL')}
+            $${(Number(item.precio) * item.cantidad).toLocaleString('es-CL')}
           </div>
           <button class="btn-eliminar" onclick="eliminarItem(${item.id}, '${item.nombre}', ${item.esLocal})">✕</button>
         </div>
       `).join('');
- 
-      document.getElementById('subtotal').textContent = `$${total.toLocaleString('es-CL')}`;
-      document.getElementById('total').textContent = `$${total.toLocaleString('es-CL')}`;
+
+      document.getElementById('subtotal').textContent = `$${Number(total).toLocaleString('es-CL')}`;
+      document.getElementById('total').textContent = `$${Number(total).toLocaleString('es-CL')}`;
       document.querySelector('.cart-count').textContent = items.reduce((s, i) => s + i.cantidad, 0);
     }
- 
+
     async function cambiarCantidad(id, cantidad, esLocal) {
       if (esLocal) {
         let carritoLocal = JSON.parse(localStorage.getItem('carritoLocal') || '[]');
@@ -312,11 +347,11 @@
         cargarCarrito();
       }
     }
- 
+
     async function eliminarItem(id, nombre, esLocal) {
       const confirmado = await mostrarConfirmacion(`¿Eliminar "${nombre}" del carrito?`);
       if (!confirmado) return;
- 
+
       if (esLocal) {
         let carritoLocal = JSON.parse(localStorage.getItem('carritoLocal') || '[]');
         carritoLocal.splice(id, 1);
@@ -330,7 +365,7 @@
         cargarCarrito();
       }
     }
- 
+
     async function vaciarCarrito() {
       if (token) {
         await fetch(`${API}/carrito`, {
@@ -342,9 +377,10 @@
       }
       cargarCarrito();
     }
- 
+
     async function irAPagar() {
       if (!token) {
+        sessionStorage.setItem('redirigirTrasLogin', 'carrito.html');
         window.location.href = 'login.html';
         return;
       }
@@ -372,7 +408,7 @@
         console.error('Error:', err);
       }
     }
- 
+
     function mostrarConfirmacion(mensaje) {
       return new Promise((resolve) => {
         const modal = document.createElement('div');
@@ -392,7 +428,8 @@
         document.getElementById('btn-cancelar').onclick = () => { modal.remove(); resolve(false); };
       });
     }
- 
+
+    actualizarNavbar();
     cargarCarrito();
   </script>
 </body>
